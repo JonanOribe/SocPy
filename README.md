@@ -10,6 +10,6 @@
 <h3>:mag_right: Testing</h3>
 <li>Lanzamos los tests con <b>pytest -v</b></li>
 <h3>:rocket: Lanzamos el proyecto con:</h3>
-<li><b>py main.py</b></li>
+<li><b>py manage.py runserver</b></li>
 <h3>:chart_with_upwards_trend: Informe de resultados</h3>
 <li>Abrir <b>blablabla</b> en un navegador</li>
