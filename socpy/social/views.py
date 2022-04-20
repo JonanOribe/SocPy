@@ -1,7 +1,11 @@
+from dataclasses import field
+from pyexpat import model
 from django.shortcuts import render
 from django.views import View
+from django.urls import reverse_lazy
 from .models import Post
 from .forms import PostForm,CommentForm
+from django.views.generic.edit import UpdateView,DeleteView
 class PostListView(View):
     def get(self, request, *args,**kwargs):
         posts = Post.objects.all().order_by('-created_on')
@@ -39,3 +43,12 @@ class PostDetailsView(View):
         }
 
         return render(request,'social/post_detail.html',context)
+
+class PostEditView(UpdateView):
+    model = Post
+    fields = ['body']
+    template_name = 'social/post_edit.html'
+
+    def get_success_url(self) -> str:
+        pk = self.kwargs['pk']
+        return reverse_lazy('post-detail', kwargs={'pk':pk})
