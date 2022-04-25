@@ -1,9 +1,10 @@
 from dataclasses import field
+from multiprocessing import context
 from pyexpat import model
 from django.shortcuts import render
 from django.views import View
 from django.urls import reverse_lazy
-from .models import Post
+from .models import Comment, Post
 from .forms import PostForm,CommentForm
 from django.views.generic.edit import UpdateView,DeleteView
 class PostListView(View):
@@ -36,10 +37,30 @@ class PostDetailsView(View):
     def get(self,request,pk,*args,**kwargs):
         post = Post.objects.get(pk=pk)
         form = CommentForm()
-
+        comments = Comment.objects.filter(post=post).order_by('-created_on')
         context = {
             'post':post,
-            'form':form
+            'form':form,
+            'comments': comments
+        }
+
+        return render(request,'social/post_detail.html',context)
+
+    def post(self,request,pk,*args,**kwargs):
+        post = Post.objects.get(pk=pk)
+        form = CommentForm(request.POST)
+
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.author = request.user
+            new_comment.post = post
+            new_comment.save()
+
+        comments = Comment.objects.filter(post=post).order_by('-created_on')
+        context = {
+            'post': post,
+            'form': form,
+            'comments': comments
         }
 
         return render(request,'social/post_detail.html',context)
@@ -52,3 +73,8 @@ class PostEditView(UpdateView):
     def get_success_url(self) -> str:
         pk = self.kwargs['pk']
         return reverse_lazy('post-detail', kwargs={'pk':pk})
+
+class PostDeleteView(DeleteView):
+    model = Post
+    template_name = 'social/post_delete.html'
+    success_url = reverse_lazy('post-list')
