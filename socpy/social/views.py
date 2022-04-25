@@ -93,7 +93,7 @@ class CommentDeleteView(LoginRequiredMixin,UserPassesTestMixin,DeleteView):
     template_name = 'social/comment_delete.html'
 
     def get_success_url(self) -> str:
-        pk = self.kwargs['pk']
+        pk = self.kwargs['post_pk']
         return reverse_lazy('post-detail', kwargs={'pk':pk})
 
     def test_func(self):
