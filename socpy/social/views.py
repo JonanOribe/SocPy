@@ -4,6 +4,7 @@ import profile
 from pyexpat import model
 from django.shortcuts import render,redirect
 from django.views import View
+from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
 from .models import Comment, Post,UserProfile
 from .forms import PostForm,CommentForm
@@ -152,3 +153,42 @@ class RemoveFollower(LoginRequiredMixin,View):
         profile = UserProfile.objects.get(pk=pk)
         profile.followers.remove(request.user)
         return redirect('profile',pk=profile.pk)
+
+class AddLike(LoginRequiredMixin,View):
+    def post(self,request,pk,*args,**kwargs):
+        post = Post.objects.get(pk=pk)
+        is_like = False
+
+        for dislike in post.dislikes.all():
+            if dislike == request.user:
+                post.dislikes.remove(request.user)
+                break
+
+        for like in post.likes.all():
+            if like == request.user:
+                is_like = True
+                break
+
+        post.likes.remove(request.user) if is_like else post.likes.add(request.user)
+
+        next = request.POST.get('next','/')
+        return HttpResponseRedirect(next)
+class AddDislike(LoginRequiredMixin,View):
+    def post(self,request,pk,*args,**kwargs):
+        post = Post.objects.get(pk=pk)
+        is_dislike = False
+
+        for like in post.likes.all():
+            if like == request.user:
+                post.likes.remove(request.user)
+                break
+
+        for dislike in post.dislikes.all():
+            if dislike == request.user:
+                is_dislike = True
+                break
+
+        post.dislikes.remove(request.user) if is_dislike else post.dislikes.add(request.user)
+
+        next = request.POST.get('next','/')
+        return HttpResponseRedirect(next)
