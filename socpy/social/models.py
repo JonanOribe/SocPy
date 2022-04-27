@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 UPLOADS_PATH = 'uploads/profile_pictures'
 
@@ -27,3 +29,12 @@ class UserProfile(models.Model):
     location = models.CharField(max_length=100, blank=True, null=True)
     picture = models.ImageField(
         upload_to=UPLOADS_PATH, default=UPLOADS_PATH+'/default.png', blank=True)
+
+@receiver(post_save,sender=User)
+def create_user_profile(sender,instance,created,**kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+@receiver(post_save,sender=User)
+def save_user_profile(sender,instance,**kwargs):
+    instance.profile.save()

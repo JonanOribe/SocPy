@@ -1,5 +1,6 @@
 from dataclasses import field
 from multiprocessing import context
+import profile
 from pyexpat import model
 from django.shortcuts import render
 from django.views import View
@@ -112,3 +113,14 @@ class ProfileView(View):
             'posts':posts
         }
         return render(request,'social/profile.html',context)
+
+class ProfileEditView(LoginRequiredMixin,UserPassesTestMixin,UpdateView):
+    model = UserProfile
+    fields = ['name','bio','birth_date','location','picture']
+    template_name= 'social/profile_edit.html'
+
+    def get_success_url(self) -> str:
+        return reverse_lazy('profile',kwargs={'pk':self.kwargs['pk']})
+
+    def test_func(self):
+        return self.request.user == self.get_object().user
