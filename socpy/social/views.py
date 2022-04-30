@@ -12,17 +12,19 @@ from .forms import PostForm,CommentForm
 from django.views.generic.edit import UpdateView,DeleteView
 from django.contrib.auth.mixins import UserPassesTestMixin,LoginRequiredMixin
 class PostListView(LoginRequiredMixin,View):
-    def get(self, request, *args,**kwargs):
-        logged_user = request.user
+    def get(self, request, *args, **kwargs):
+        logged_in_user = request.user
         posts = Post.objects.filter(
-           author__profile__followers__in=[logged_user.id] 
+            author__profile__followers__in=[logged_in_user.id]
         ).order_by('-created_on')
         form = PostForm()
+
         context = {
             'post_list': posts,
             'form': form,
         }
-        return render(request,'social/post_list.html',context)
+
+        return render(request, 'social/post_list.html', context)
 
     def post(self, request,*args, **kwargs):
         posts = Post.objects.all().order_by('-created_on')
@@ -221,3 +223,43 @@ class ListFollowers(View):
         }
 
         return render(request,'social/followers_list.html',context)
+
+class AddCommentLike(LoginRequiredMixin,View):
+    def post(self,request,pk,*args,**kwargs):
+        comment = Comment.objects.get(pk=pk)
+        is_like = False
+
+        for dislike in comment.dislikes.all():
+            if dislike == request.user:
+                comment.dislikes.remove(request.user)
+                break
+
+        for like in comment.likes.all():
+            if like == request.user:
+                is_like = True
+                break
+
+        comment.likes.remove(request.user) if is_like else comment.likes.add(request.user)
+
+        next = request.POST.get('next','/')
+        return HttpResponseRedirect(next)
+
+class AddCommentDislike(LoginRequiredMixin,View):
+    def post(self,request,pk,*args,**kwargs):
+        comment = Comment.objects.get(pk=pk)
+        is_dislike = False
+
+        for like in comment.likes.all():
+            if like == request.user:
+                comment.likes.remove(request.user)
+                break
+
+        for dislike in comment.dislikes.all():
+            if dislike == request.user:
+                is_dislike = True
+                break
+
+        comment.dislikes.remove(request.user) if is_dislike else comment.dislikes.add(request.user)
+
+        next = request.POST.get('next','/')
+        return HttpResponseRedirect(next)
