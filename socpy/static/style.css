@@ -29,3 +29,11 @@
 .child-comment{
   margin-left: 2rem;
 }
+
+.thumbs-up-styles{
+  color:rgba(27, 61, 129,0.7) !important;
+}
+
+.checked-star {
+  color: orange;
+}
