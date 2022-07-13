@@ -147,3 +147,5 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 LOGIN_REDIRECT_URL ='post-list'
 ACCOUNT_EMAIL_REQUITED = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+CSRF_TRUSTED_ORIGINS = ['https://jonanoribe-socpy-jr9jjx45hj59g-8000.githubpreview.dev']
