@@ -99,3 +99,16 @@
 	transition: 0.3s;
 	cursor: pointer;
 }
+
+.inbox-icon-container{
+	margin-right: 15px;
+}
+
+.inbox-icon{
+	color:#333;
+	transition: 0.5s;
+}
+
+.inbox-icon:hover{
+	transition: 0.5s;
+}
